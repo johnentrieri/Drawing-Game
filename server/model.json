@@ -4,11 +4,14 @@
     "host" : "",
     "code" : "",
     "word" : "",
+    "prevWord": "",
     "turn" : -1,
     "time" : {
-        "drawLimit" : 60,
+        "drawLimit" : 120,
+        "bufferLimit" : 5,
         "timeRemain" : 0,
         "active" : 0,
+        "buffer": 0,
         "idle" : 0,
         "idleSum" : 0
     },
