@@ -1,0 +1,45 @@
+{
+    "name" : "Template",
+    "state" : "lobby",
+    "host" : "",
+    "code" : "",
+    "word" : "",
+    "turn" : -1,
+    "time" : {
+        "drawLimit" : 60,
+        "timeRemain" : 0,
+        "active" : 0,
+        "idle" : 0,
+        "idleSum" : 0
+    },
+    "teams" : {
+        "team1": {
+            "players" :  [],
+            "drawIndex" : 0,
+            "points" : 0,
+            "isActive" : false,
+            "isWinner" : false
+        },
+        "team2": {
+            "players" :  [],
+            "drawIndex" : 0,
+            "points" : 0,
+            "isActive" : false,
+            "isWinner" : false
+        },
+        "team3": {
+            "players" :  [],
+            "drawIndex" : 0,
+            "points" : 0,
+            "isActive" : false,
+            "isWinner" : false
+        },
+        "team4": {
+            "players" :  [],
+            "drawIndex" : 0,
+            "points" : 0,
+            "isActive" : false,
+            "isWinner" : false
+        }     
+    }
+}
