@@ -55,6 +55,7 @@ class GameManager extends Component {
         responseStatus : "",
         responseMessage: "",
         gameData : {},
+        prevTimeRemain : 0
     }
 
     componentDidMount() {
@@ -84,6 +85,13 @@ class GameManager extends Component {
                 if (response.data.status === "SUCCESS") {
                     let gd = response.data.data;
                     this.setState({ gameData : gd });
+                    if (gd['time']['timeRemain'] > this.state.prevTimeRemain) {
+                        this.clearViewingCanvas('team1');
+                        this.clearViewingCanvas('team2');
+                        this.clearViewingCanvas('team3');
+                        this.clearViewingCanvas('team4');
+                    }
+                    this.setState({ prevTimeRemain : gd['time']['timeRemain']})
                 }
                 else {
                     this.setState({ username : "" });
@@ -182,6 +190,10 @@ class GameManager extends Component {
 
     drawHandler = (team,points) => {
         socket.emit('draw',team,points);        
+    }
+
+    clearViewingCanvas = (team) => {
+        socket.emit('clear',team);
     }
 
     clearCanvasHandler = (team) => {
