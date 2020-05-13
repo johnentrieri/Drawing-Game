@@ -9,7 +9,7 @@ const viewingCanvas = (props) => {
         const canvas = document.getElementById(props.id);
         if (canvas) {
             const ctx = canvas.getContext('2d');
-            if (!props.game.teams[props.id].isActive) {
+            if (props.game.state==='active' && !props.game.teams[props.id].isActive) {
                 ctx.fillStyle = "gray";
                 ctx.fillRect(0,0,canvas.width,canvas.height);
             }

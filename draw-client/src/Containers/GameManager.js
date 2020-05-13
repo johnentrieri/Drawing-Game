@@ -194,7 +194,9 @@ class GameManager extends Component {
     }
 
     drawHandler = (team,points) => {
+        if (this.state.gameData.state === 'active') {
         socket.emit('draw',team,points);        
+    }
     }
 
     clearViewingCanvas = (team) => {
