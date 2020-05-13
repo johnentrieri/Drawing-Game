@@ -2,9 +2,12 @@ import React from 'react';
 
 const viewingCanvas = (props) => {
 
-    let guessForm = null; 
-    let prevWordLabel = null;
+    let guessForm = null;
+    let timer = null; 
+    
     if (props.game.teams) {
+
+        timer = Math.round(parseInt(props.game.time.timeRemain));
 
         const canvas = document.getElementById(props.id);
         if (canvas) {
@@ -23,12 +26,7 @@ const viewingCanvas = (props) => {
         }
                    
         if (userOnTeam) {
-            if (props.game.state === "buffer" && props.game.prevWord !== "") {
-                prevWordLabel = <h3>Last Round: {props.game.prevWord}</h3>;
-            } else {
-                prevWordLabel = <h3>You are a Guesser!</h3>;
-            }
-            if (props.game.teams[props.id].isActive) {
+            if (props.game.teams[props.id].isActive && props.game.state === 'active') {
                 guessForm = <div>
                     <input id={"guess_"+props.id} placeholder="Guess" className="m-auto form-control" />
                     <button 
@@ -49,7 +47,6 @@ const viewingCanvas = (props) => {
 
     return (
         <div>
-            {prevWordLabel}
             <canvas width="300" height="300" id={props.id} className="bg-white rounded border border-secondary shadow"></canvas>
             {guessForm}
         </div>
