@@ -64,20 +64,25 @@ def guessedCorrectly(room,guessingTeam):
     game_collection.update_one({'name' : room}, {'$set' : {'teams' : gameData['teams']}})    
 
     #Get New Word
+    prevWord = gameData['word']
+    game_collection.update_one({'name' : room}, {'$set' : {'prevWord' : prevWord }})
     game_collection.update_one({'name' : room}, {'$set' : {'word' : getWord() }})
 
 def roundExpired(room):
 
     #Load game data
     gameData = game_collection.find_one({'name' : room})
-    
+
+    #Set state to Buffer    
+    game_collection.update_one({'name' : room}, {'$set' : {'state' : 'buffer'}})
+
     #Reset Idle Timer
     gameData['time']['idleSum'] = 0
     gameData['time']['idle'] = 0
 
-    #Reset Active Timer
-    gameData['time']['timeRemain'] = gameData['time']['drawLimit']
-    gameData['time']['active'] = time.time()
+    #Reset Buffer Timer
+    gameData['time']['timeRemain'] = gameData['time']['bufferLimit']
+    gameData['time']['buffer'] = time.time()
 
     #Upload New Timers to Server
     game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
@@ -109,7 +114,31 @@ def roundExpired(room):
     game_collection.update_one({'name' : room}, {'$set' : {'teams' : gameData['teams']}})    
 
     #Get New Word
+    prevWord = gameData['word']
+    game_collection.update_one({'name' : room}, {'$set' : {'prevWord' : prevWord }})
     game_collection.update_one({'name' : room}, {'$set' : {'word' : getWord() }})
+
+def bufferExpired(room):
+
+    #Load game data
+    gameData = game_collection.find_one({'name' : room})
+
+    #Set state to Buffer    
+    game_collection.update_one({'name' : room}, {'$set' : {'state' : 'active'}})
+
+    #Reset Idle Timer
+    gameData['time']['idleSum'] = 0
+    gameData['time']['idle'] = 0
+
+    #Reset Buffer Timer
+    gameData['time']['buffer'] = 0
+
+    #Reset Active Timer
+    gameData['time']['timeRemain'] = gameData['time']['drawLimit']
+    gameData['time']['active'] = time.time()
+
+    #Upload New Timers to Server
+    game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
 
 @app.route('/')
 def hello_world():
@@ -135,7 +164,16 @@ def gameData():
                 if (player == user):
                     isUserFound = True
 
-        if (isUserFound):            
+        if (isUserFound):
+
+            #Time Processing while in-between rounds
+            if gameData['state'] == 'buffer':
+                currTime = time.time()
+                gameData['time']['timeRemain'] = (gameData['time']['bufferLimit'] + gameData['time']['idleSum']) - (currTime - gameData['time']['buffer'])
+                game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
+
+                if (gameData['time']['timeRemain'] < 0 ):
+                    bufferExpired(room)          
 
             #Time Processing while Active
             if gameData['state'] == 'active':
@@ -148,10 +186,14 @@ def gameData():
 
             #Time Processing while Paused
             if gameData['state'] == 'paused':
-                currTime = time.time()
-                gameData['time']['timeRemain'] = (gameData['time']['drawLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['active'])          
-                game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
-
+                if gameData['prevState'] == 'active':
+                    currTime = time.time()
+                    gameData['time']['timeRemain'] = (gameData['time']['drawLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['active'])          
+                    game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
+                if gameData['prevState'] == 'buffer':
+                    currTime = time.time()
+                    gameData['time']['timeRemain'] = (gameData['time']['bufferLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['buffer'])          
+                    game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
             gameData = game_collection.find_one({'name' : room})
             gameDataDict = json.loads(json_util.dumps(gameData))
 
@@ -352,12 +394,12 @@ def startGame():
 
                     game_collection.update_one({'name' : room}, {'$set' : {'teams' : gameData['teams']}})
 
-                    #Set state to active
-                    game_collection.update_one({'name' : room}, {'$set' : {'state' : 'active'}})
+                    #Set state to buffer
+                    game_collection.update_one({'name' : room}, {'$set' : {'state' : 'buffer'}})
 
-                    #Start Active Timer
-                    gameData['time']['timeRemain'] = gameData['time']['drawLimit']
-                    gameData['time']['active'] = time.time()
+                    #Start Buffer Timer
+                    gameData['time']['timeRemain'] = gameData['time']['bufferLimit']
+                    gameData['time']['buffer'] = time.time()
                     game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
 
                     response = flask.jsonify({ "status" : "SUCCESS", "message" : "Game Started" })
@@ -378,7 +420,6 @@ def pauseGame():
    
    #Get Request Parameters
     room = flask.request.form['room']
-    user = flask.request.form['user']
 
     #Check if Room Exists
     if (game_collection.count_documents({'name' : room}) > 0):
@@ -389,6 +430,9 @@ def pauseGame():
         if(gameData['state'] == 'paused'):
             response = flask.jsonify({ "status" : "FAIL", "message" : "Game Already Paused"})
         else:
+
+            #Set prevState to current state
+            game_collection.update_one({'name' : room}, {'$set' : {'prevState' : gameData['state']}})
 
             #Set state to paused
             game_collection.update_one({'name' : room}, {'$set' : {'state' : 'paused'}})
@@ -410,7 +454,6 @@ def resumeGame():
    
    #Get Request Parameters
     room = flask.request.form['room']
-    user = flask.request.form['user']
 
     #Check if Room Exists
     if (game_collection.count_documents({'name' : room}) > 0):
@@ -419,8 +462,10 @@ def resumeGame():
         gameData = game_collection.find_one({'name' : room})
 
         if(gameData['state'] == 'paused'):
-            #Set state to active
-            game_collection.update_one({'name' : room}, {'$set' : {'state' : 'active'}})
+
+            #Set state to previous state
+            game_collection.update_one({'name' : room}, {'$set' : {'state' : gameData['prevState']}})
+            game_collection.update_one({'name' : room}, {'$set' : {'prevState' : ''}})
 
             #Update Idle Time Sum
             gameData['time']['idleSum'] += ( time.time() - gameData['time']['idle'] )
@@ -525,7 +570,6 @@ def guess():
 
                 #Verify user is on the team and not the drawer
                 isTeamMember = False
-                isTeamDrawer = False
                 for i,player in enumerate(gameData['teams'][team]['players']):
                     if (player == user):
                         isTeamMember = True

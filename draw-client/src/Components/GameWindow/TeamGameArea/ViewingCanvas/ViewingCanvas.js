@@ -2,7 +2,8 @@ import React from 'react';
 
 const viewingCanvas = (props) => {
 
-    let guessForm = null; 
+    let guessForm = null;
+    
     if (props.game.teams) {
 
         const canvas = document.getElementById(props.id);
@@ -22,7 +23,7 @@ const viewingCanvas = (props) => {
         }
                    
         if (userOnTeam) {
-            if (props.game.teams[props.id].isActive) {
+            if (props.game.teams[props.id].isActive && props.game.state === 'active') {
                 guessForm = <div>
                     <input id={"guess_"+props.id} placeholder="Guess" className="m-auto form-control" />
                     <button 
