@@ -30,13 +30,16 @@ def guessedCorrectly(room,guessingTeam):
     #Load game data
     gameData = game_collection.find_one({'name' : room})
     
+    #Set State to Buffer    
+    game_collection.update_one({'name' : room}, {'$set' : {'state' : 'buffer'}})
+
     #Reset Idle Timer
     gameData['time']['idleSum'] = 0
     gameData['time']['idle'] = 0
 
-    #Reset Active Timer
-    gameData['time']['timeRemain'] = gameData['time']['drawLimit']
-    gameData['time']['active'] = time.time()
+    #Reset Buffer Timer
+    gameData['time']['timeRemain'] = gameData['time']['bufferLimit']
+    gameData['time']['buffer'] = time.time()
 
     #Upload New Timers to Server
     game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
