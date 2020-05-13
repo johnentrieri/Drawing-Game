@@ -8,12 +8,8 @@ const pauseButton = (props) => {
         if (props.game.state==='paused') {
             label = 'Resume';
             action = props.resumeClicked;
-            classes = "btn btn-primary mx-1 my-2";
-        } else if (props.game.state==='buffer'){
-            label  = 'Round Over';
-            action = null;
-            classes = "btn btn-secondary mx-1 my-2";            
-        } else  if (props.game.state==='active'){
+            classes = "btn btn-primary mx-1 my-2";            
+        } else {
             label = 'Pause';
             action = props.pauseClicked;
             classes = "btn btn-primary mx-1 my-2";

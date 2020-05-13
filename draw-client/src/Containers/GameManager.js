@@ -55,7 +55,8 @@ class GameManager extends Component {
         responseStatus : "",
         responseMessage: "",
         gameData : {},
-        prevTimeRemain : 0
+        prevTimeRemain : 0,
+        prevState : ""
     }
 
     componentDidMount() {
@@ -91,7 +92,11 @@ class GameManager extends Component {
                         this.clearViewingCanvas('team3');
                         this.clearViewingCanvas('team4');
                     }
-                    this.setState({ prevTimeRemain : gd['time']['timeRemain']})
+                    if (gd['state'] === "buffer" && this.state.prevState === "active") {
+                        this.pauseGameHandler();
+                    }
+                    this.setState({ prevTimeRemain : gd['time']['timeRemain']});
+                    this.setState({ prevState : gd['state']})
                 }
                 else {
                     this.setState({ username : "" });

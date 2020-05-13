@@ -14,8 +14,10 @@ const teamGameArea = (props) => {
 
         points = <p>Points: {props.game.teams[props.team].points}</p>
 
-        if (props.game.state === 'active') {
+        if (props.game.state === 'active' || props.game.prevState === 'active' ) {
             timer = <p>Timer: {Math.round(parseInt(props.game.time.timeRemain))}</p>
+        } else {
+            timer = <p>Next Round in: {Math.round(parseInt(props.game.time.timeRemain))}</p>
         }
 
         drawer = props.game.teams[props.team].players[props.game.teams[props.team].drawIndex];

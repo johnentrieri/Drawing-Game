@@ -10,6 +10,7 @@ const gameWindow = (props) => {
   
     let canvas = null;
     let prevWordLabel = null;
+    let pauseBtn = null;
 
     if (props.game.teams) {
 
@@ -22,10 +23,18 @@ const gameWindow = (props) => {
             }
         }
         
-        if (props.game.state === "buffer" && props.game.prevWord !== "") {
+        if (props.game.state !== "active" && props.game.prevWord !== "") {
             prevWordLabel = <h3 className="text-center">Last Round: {props.game.prevWord}</h3>;
         } else {
             prevWordLabel = null;
+        }
+
+        if (props.game.state !== 'active') {
+        pauseBtn =  <PauseButton 
+                        game={props.game}
+                        pauseClicked={props.pauseClicked}
+                        resumeClicked={props.resumeClicked}
+                    />
         }
     }
 
@@ -41,11 +50,7 @@ const gameWindow = (props) => {
                 <div className="col-sm-4"></div>
             </div>            
             <div className="row mt-5">
-                <PauseButton 
-                    game={props.game}
-                    pauseClicked={props.pauseClicked}
-                    resumeClicked={props.resumeClicked}
-                />
+                {pauseBtn}
             </div>
             <div className="row mt-5 container ">
                 <div className="col-sm-4"></div>

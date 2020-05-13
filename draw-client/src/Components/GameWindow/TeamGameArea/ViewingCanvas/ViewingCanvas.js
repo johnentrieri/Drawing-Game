@@ -3,11 +3,8 @@ import React from 'react';
 const viewingCanvas = (props) => {
 
     let guessForm = null;
-    let timer = null; 
     
     if (props.game.teams) {
-
-        timer = Math.round(parseInt(props.game.time.timeRemain));
 
         const canvas = document.getElementById(props.id);
         if (canvas) {

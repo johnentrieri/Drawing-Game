@@ -186,10 +186,14 @@ def gameData():
 
             #Time Processing while Paused
             if gameData['state'] == 'paused':
-                currTime = time.time()
-                gameData['time']['timeRemain'] = (gameData['time']['drawLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['active'])          
-                game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
-
+                if gameData['prevState'] == 'active':
+                    currTime = time.time()
+                    gameData['time']['timeRemain'] = (gameData['time']['drawLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['active'])          
+                    game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
+                if gameData['prevState'] == 'buffer':
+                    currTime = time.time()
+                    gameData['time']['timeRemain'] = (gameData['time']['bufferLimit'] + gameData['time']['idleSum'] + (currTime - gameData['time']['idle'])) - (currTime - gameData['time']['buffer'])          
+                    game_collection.update_one({'name' : room}, {'$set' : {'time' : gameData['time']}})
             gameData = game_collection.find_one({'name' : room})
             gameDataDict = json.loads(json_util.dumps(gameData))
 
@@ -427,6 +431,9 @@ def pauseGame():
             response = flask.jsonify({ "status" : "FAIL", "message" : "Game Already Paused"})
         else:
 
+            #Set prevState to current state
+            game_collection.update_one({'name' : room}, {'$set' : {'prevState' : gameData['state']}})
+
             #Set state to paused
             game_collection.update_one({'name' : room}, {'$set' : {'state' : 'paused'}})
 
@@ -455,8 +462,10 @@ def resumeGame():
         gameData = game_collection.find_one({'name' : room})
 
         if(gameData['state'] == 'paused'):
-            #Set state to active
-            game_collection.update_one({'name' : room}, {'$set' : {'state' : 'active'}})
+
+            #Set state to previous state
+            game_collection.update_one({'name' : room}, {'$set' : {'state' : gameData['prevState']}})
+            game_collection.update_one({'name' : room}, {'$set' : {'prevState' : ''}})
 
             #Update Idle Time Sum
             gameData['time']['idleSum'] += ( time.time() - gameData['time']['idle'] )

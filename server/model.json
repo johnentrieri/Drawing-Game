@@ -5,10 +5,11 @@
     "code" : "",
     "word" : "",
     "prevWord": "",
+    "prevState":"",
     "turn" : -1,
     "time" : {
         "drawLimit" : 90,
-        "bufferLimit" : 10,
+        "bufferLimit" : 5,
         "timeRemain" : 0,
         "active" : 0,
         "buffer": 0,
