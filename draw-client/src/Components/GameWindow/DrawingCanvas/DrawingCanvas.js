@@ -2,6 +2,18 @@ import React from 'react';
 
 const drawingCanvas = (props) => {
 
+    // Get a regular interval for drawing to the screen
+    let requestAnimFrame = (function (callback) {
+        return window.requestAnimationFrame || 
+                    window.webkitRequestAnimationFrame ||
+                    window.mozRequestAnimationFrame ||
+                    window.oRequestAnimationFrame ||
+                    window.msRequestAnimaitonFrame ||
+                    function (callback) {
+                        window.setTimeout(callback, 1000/60);
+                    };
+    })();
+    
     let wordLabel = null;
     if (props.game.teams) {   
         if (props.game.state === 'active') {
@@ -18,85 +30,107 @@ const drawingCanvas = (props) => {
             ctx.lineWidth = 2;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
+        
+           var drawing = false;
+           var mousePos = null;
+           var lastPos = mousePos;
+           
+           canvas.addEventListener("mousedown", function (e) {
+               drawing = true;
+               lastPos = getMousePos(canvas, e);
+           }, false);
 
-            let started = false;
-            let points = [];
+           canvas.addEventListener("mouseup", function (e) {
+               drawing = false;
+           }, false);
 
-            const mouseMove = (e) => { 
-                if (started) {
-                    var m = getMouse(e, canvas);
-                    points.push({
-                        x: m.x,
-                        y: m.y
-                    });
-                    if (props.game.state === 'active') {
-                        drawPoints(ctx, points);
-                        props.draw(props.team,points);
+           canvas.addEventListener("mousemove", function (e) {
+               mousePos = getMousePos(canvas, e);
+           }, false);
+
+           // Set up touch events for mobile, etc
+           canvas.addEventListener("touchstart", function (e) {
+               mousePos = getTouchPos(canvas, e);
+               var touch = e.touches[0];
+               var mouseEvent = new MouseEvent("mousedown", {
+                   clientX: touch.clientX,
+                   clientY: touch.clientY
+               });
+               canvas.dispatchEvent(mouseEvent);
+           }, false);
+
+           canvas.addEventListener("touchend", function (e) {
+               var mouseEvent = new MouseEvent("mouseup", {});
+               canvas.dispatchEvent(mouseEvent);
+           }, false);
+
+           canvas.addEventListener("touchmove", function (e) {
+               var touch = e.touches[0];
+               var mouseEvent = new MouseEvent("mousemove", {
+                   clientX: touch.clientX,
+                   clientY: touch.clientY
+               });
+               canvas.dispatchEvent(mouseEvent);
+           }, false);
+
+           // Prevent scrolling when touching the canvas
+           document.body.addEventListener("touchstart", function (e) {
+               if (e.target == canvas) {
+                   e.preventDefault();
+               }
+           }, {passive : false});
+
+           document.body.addEventListener("touchend", function (e) {
+               if (e.target == canvas) {
+                   e.preventDefault();
+               }
+           }, {passive : false});
+
+           document.body.addEventListener("touchmove", function (e) {
+               if (e.target == canvas) {
+                   e.preventDefault();
+               }
+           }, {passive : false});
+
+           // Get the position of the mouse relative to the canvas
+           function getMousePos(canvasDom, mouseEvent) {
+               var rect = canvasDom.getBoundingClientRect();
+               return {
+                   x: mouseEvent.clientX - rect.left,
+                   y: mouseEvent.clientY - rect.top
+               };
+           }
+
+           // Get the position of a touch relative to the canvas
+           function getTouchPos(canvasDom, touchEvent) {
+               var rect = canvasDom.getBoundingClientRect();
+               return {
+                   x: touchEvent.touches[0].clientX - rect.left,
+                   y: touchEvent.touches[0].clientY - rect.top
+               };
+           }
+
+           // Draw to the canvas
+           function renderCanvas(initPos,finalPos) {
+                if (drawing) {
+                    if(initPos && finalPos) {
+                        ctx.beginPath();
+                        ctx.moveTo(initPos.x, initPos.y);
+                        ctx.lineTo(finalPos.x, finalPos.y);
+                        ctx.stroke();
+                        props.draw(props.team,initPos,finalPos);
                     }
                 }
-            };
+           }
 
-            const mouseUp = (e) => { 
-                if (started) {
-                    started = false;
-                    points = [];
-                }
-            };
+           // Allow for animation
+           (function drawLoop () {
+               requestAnimFrame(drawLoop);
+               renderCanvas(lastPos,mousePos);
+               lastPos = mousePos;
+           })();
 
-            const mouseDown = (e) => {
-                let m = getMouse(e, canvas);
-                points.push({
-                    x: m.x,
-                    y: m.y
-                });
-                started = true;
-            };
-
-            const drawPoints = (ctx, points) => {
-                // draw a basic circle instead
-                if (points.length < 6) {
-                    let b = points[0];
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-                    ctx.closePath();
-                    ctx.fill();
-                    return
-                }
-                ctx.beginPath();
-                ctx.moveTo(points[0].x, points[0].y);
-                // draw a bunch of quadratics, using the average of two points as the control point
-                let i = 1;
-                for (i = 1; i < points.length - 2; i++) {
-                    let c = (points[i].x + points[i + 1].x) / 2,
-                        d = (points[i].y + points[i + 1].y) / 2;
-                    ctx.quadraticCurveTo(points[i].x, points[i].y, c, d)
-                }
-                ctx.quadraticCurveTo(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-                ctx.stroke();
-            }
-
-            const getMouse = (e, canvas) => {
-                var element = canvas, offsetX = 0, offsetY = 0, mx, my;
-            
-                // Compute the total offset. It's possible to cache this if you want
-                if (element.offsetParent !== undefined) {
-                do {
-                    offsetX += element.offsetLeft;
-                    offsetY += element.offsetTop;
-                } while ((element = element.offsetParent));
-                }
-            
-                mx = e.pageX - offsetX;
-                my = e.pageY - offsetY;
-            
-                // We return a simple javascript object with x and y defined
-                return {x: mx, y: my};
-            };
-
-            canvas.addEventListener('mousedown', mouseDown, false );
-            canvas.addEventListener('mousemove', mouseMove, false );
-            canvas.addEventListener('mouseup', mouseUp, false );
-        }        
+        }
     }
 
     return (
