@@ -1,8 +1,9 @@
-import Schema from 'mongoose';
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const gameSchema = new Schema({
-    name:  {type: String}, //Room Name
-    host: {type: String, default: ''}, //Host Name
+const GameSchema = new Schema({
+    name:  {type: String, required: true}, //Room Name
+    host: {type: String, required: true}, //Host Name
     code: {type: String, default: ''}, //Code to Enter Room
     state: {type: String, default: 'lobby'}, //Current Game State
     prevState: {type: String, default: ''}, //Previous Game State  
@@ -49,3 +50,5 @@ const gameSchema = new Schema({
         }
     }
 });
+
+module.exports = mongoose.model('game', GameSchema);

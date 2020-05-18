@@ -1,24 +1,28 @@
 //Dependencies
 const express = require('express');
 const socket = require('socket.io');
+const bodyParser = require('body-parser');
+
+//Local
+const db = require('./db')
+const router = require('./routes/router');
 
 //MongoDB
-const db = require('./db')
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
 //App Setup
 const app = express();
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use('/api/',router);
+
+//Listen
 const server = app.listen(4000, () => {console.log('Listening on Port 4000...')});
 
-//REST
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
-
-//Socket Setup
+//WebSocket Setup
 const io = socket(server);
 
-//Connection
+//WebSocket Connection
 io.on('connection', (socket) => {
     console.log('Made socket connection: ' + socket.id);
 
