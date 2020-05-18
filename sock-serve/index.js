@@ -2,6 +2,7 @@
 const express = require('express');
 const socket = require('socket.io');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 //Local
 const db = require('./db')
@@ -12,6 +13,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
 //App Setup
 const app = express();
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use('/api/',router);

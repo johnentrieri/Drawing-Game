@@ -5,7 +5,7 @@ hostGame = (request,response) => {
 
     //Check for Empty Body
     if (!body) {
-        return response.status(400).json({
+        return response.status(200).json({
             status: 'FAIL',
             message: 'Body Empty'
         })
@@ -13,7 +13,7 @@ hostGame = (request,response) => {
 
     //Check for Empty Room Name
     if (!body.room) {
-        return response.status(400).json({
+        return response.status(200).json({
             status: 'FAIL',
             message: 'Room Name Empty'
         })
@@ -21,7 +21,7 @@ hostGame = (request,response) => {
 
     //Check for Empty User Name
     if (!body.user) {
-        return response.status(400).json({
+        return response.status(200).json({
             status: 'FAIL',
             message: 'User Name Empty'
         })
@@ -29,15 +29,15 @@ hostGame = (request,response) => {
 
     Game.findOne( {name: body.room}, (err, doc) => {
         if (err) {
-            return response.status(400).json({
+            return response.status(200).json({
                 status: 'FAIL',
-                message: 'Error Checking Database for Room'
+                message: err.message
             })
         } 
         
         //Check if Room Name Already Exists
         if (doc) {
-            return response.status(400).json({
+            return response.status(200).json({
                 status: 'FAIL',
                 message: 'Room Already Exists'
             })
@@ -55,14 +55,16 @@ hostGame = (request,response) => {
             //Save 'Game' Document to Database
             tempGame.save( (err) => {
                 if (err) {
-                    return response.status(400).json({
+                    return response.status(200).json({
                         status: 'FAIL',
-                        message: 'Error Saving Document to Database'
+                        message: err.message
                     })
                 } else {
                     return response.status(200).json({
                         status: 'SUCCESS',
                         message: 'New Game Created',
+                        user: body.user,
+                        room: body.room
                     })
                 }
             })

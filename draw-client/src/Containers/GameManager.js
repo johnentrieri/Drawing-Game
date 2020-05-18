@@ -7,7 +7,7 @@ import LobbyWindow from '../Components/LobbyWindow/LobbyWindow';
 import GameWindow from '../Components/GameWindow/GameWindow';
 
 let socket = io.connect('http://localhost:4000');
-const API_URL = "http://localhost:5000"
+const API_URL = "http://localhost:4000/api"
 
 //Listen Drawing Event
 socket.on('draw', (team,points) => {
@@ -71,16 +71,17 @@ class GameManager extends Component {
 
     getGameData = () => {
         if (this.state.room !== "") {
-            
-            let bodyFormData = new FormData();
-            bodyFormData.set('user', this.state.username);
-            bodyFormData.set('room', this.state.room);
+
+            let bodyFormData = {
+                'user' : this.state.username,
+                'room' : this.state.room
+            };
 
             axios({
                 method: 'post',
                 url: API_URL + '/gamedata/',
                 data: bodyFormData,
-                headers: {'Content-Type': 'multipart/form-data' }
+                headers: {'Content-Type': 'application/json' }
             })
             .then( (response) => {
                 if (response.data.status === "SUCCESS") {
@@ -107,16 +108,18 @@ class GameManager extends Component {
     }
 
     hostGameHandler = (user, room, code) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', user);
-        bodyFormData.set('room', room);
-        bodyFormData.set('code', code);
+
+        let bodyFormData = {
+            'user' : user,
+            'room' : room,
+            'code' : code
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/hostgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -130,16 +133,17 @@ class GameManager extends Component {
     }
 
     joinGameHandler = (user, room, code) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', user);
-        bodyFormData.set('room', room);
-        bodyFormData.set('code', code);
+        let bodyFormData = {
+            'user' : user,
+            'room' : room,
+            'code' : code
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/joingame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -153,16 +157,17 @@ class GameManager extends Component {
     }
 
     joinTeamHandler = (team) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
-        bodyFormData.set('team', team);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+            'team' : team
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/jointeam/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });

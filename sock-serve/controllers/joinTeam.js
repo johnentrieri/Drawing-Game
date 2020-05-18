@@ -1,6 +1,6 @@
 const Game = require('../db/models/gameSchema');
 
-joinGame = (request,response) => {   
+joinTeam = (request,response) => {   
     const body = request.body;
 
     //Check for Empty Body
@@ -27,6 +27,14 @@ joinGame = (request,response) => {
         })
     }
 
+    //Check for Empty Team Name
+    if (!body.team) {
+        return response.status(200).json({
+            status: 'FAIL',
+            message: 'No Team specified'
+        })
+    }
+
     Game.findOne( {name: body.room}, (err, doc) => {
         if (err) {
             return response.status(200).json({
@@ -43,54 +51,39 @@ joinGame = (request,response) => {
             })
         } else {
 
-            //Check if Password is Correct
-            if (doc.code !== body.code) {
-                return response.status(200).json({
-                    status: 'FAIL',
-                    message: 'Room Code Incorrect'
-                })
-            } 
-
-            //Check if User is already in this Game
+            //Check if User is in this Game
+            let isUserFound = false;
             const teamList = Object.keys(doc.teams);
             for (let i=0;i<teamList.length;i++) {
                 const playerList = doc.teams[teamList[i]].players;
                 if (playerList && playerList.includes(body.user)) {
-                    return response.status(200).json({
-                        status: 'SUCCESS',
-                        message: 'Rejoined Game',
-                        user: body.user,
-                        room: doc.name
+                    isUserFound = true;                                        
+                    doc.teams[teamList[i]].players.splice(playerList.indexOf(body.user),1);
+                    doc.teams[body.team].players.push(body.user);
+                    doc.save( (err) => {
+                        if (err) {
+                            return response.status(200).json({
+                                status: 'FAIL',
+                                message: err.message
+                            })
+                        } else {
+                            return response.status(200).json({
+                                status: 'SUCCESS',
+                                message: 'Joined Team'
+                            })
+                        }
                     })
+                    break;
                 }
             }
-
-            if (doc.state !== 'lobby') {
+            if (!isUserFound) {
                 return response.status(200).json({
                     status: 'FAIL',
-                    message: 'Game has already started',
+                    message: 'Player not in Game'
                 })
-            } else {
-                
-                doc.teams.team1.players.push(body.user);
-                doc.save( (err) => {
-                    if (err) {
-                        return response.status(200).json({
-                            status: 'FAIL',
-                            message: err.message
-                        })
-                    } else {
-                        return response.status(200).json({
-                            status: 'SUCCESS',
-                            message: 'Joined Game',
-                            user: body.user,
-                            room: doc.name
-                        })
-                    }
-                }) 
             }
         }
     });
 };
 
-module.exports = joinGame;
+module.exports = joinTeam;

@@ -43,13 +43,7 @@ joinGame = (request,response) => {
             })
         } else {
 
-            //Check if Password is Correct
-            if (doc.code !== body.code) {
-                return response.status(200).json({
-                    status: 'FAIL',
-                    message: 'Room Code Incorrect'
-                })
-            } 
+            //TODO - Time Processing
 
             //Check if User is already in this Game
             const teamList = Object.keys(doc.teams);
@@ -58,37 +52,16 @@ joinGame = (request,response) => {
                 if (playerList && playerList.includes(body.user)) {
                     return response.status(200).json({
                         status: 'SUCCESS',
-                        message: 'Rejoined Game',
-                        user: body.user,
-                        room: doc.name
+                        message: 'Game Found',
+                        data: doc
                     })
                 }
             }
 
-            if (doc.state !== 'lobby') {
-                return response.status(200).json({
-                    status: 'FAIL',
-                    message: 'Game has already started',
-                })
-            } else {
-                
-                doc.teams.team1.players.push(body.user);
-                doc.save( (err) => {
-                    if (err) {
-                        return response.status(200).json({
-                            status: 'FAIL',
-                            message: err.message
-                        })
-                    } else {
-                        return response.status(200).json({
-                            status: 'SUCCESS',
-                            message: 'Joined Game',
-                            user: body.user,
-                            room: doc.name
-                        })
-                    }
-                }) 
-            }
+            return response.status(200).json({
+                status: 'FAIL',
+                message: 'Player not in Game'
+            })
         }
     });
 };
