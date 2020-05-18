@@ -1,12 +1,22 @@
-var express = require('express');
-var socket = require('socket.io');
+//Dependencies
+const express = require('express');
+const socket = require('socket.io');
+
+//MongoDB
+const db = require('./db')
+db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
 //App Setup
-var app = express();
-var server = app.listen(4000, () => {console.log('Listening on Port 4000...')});
+const app = express();
+const server = app.listen(4000, () => {console.log('Listening on Port 4000...')});
+
+//REST
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
 
 //Socket Setup
-var io = socket(server);
+const io = socket(server);
 
 //Connection
 io.on('connection', (socket) => {
