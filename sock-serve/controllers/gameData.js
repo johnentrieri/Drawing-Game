@@ -48,9 +48,10 @@ joinGame = (request,response) => {
             //Check if User is already in this Game
             let isUserFound = false;
             const teamList = Object.keys(doc.teams);
+            teamList.splice(0,1);
             for (let i=0;i<teamList.length;i++) {
                 const playerList = doc.teams[teamList[i]].players;
-                if (playerList && playerList.includes(body.user)) {
+                if (playerList.includes(body.user)) {
                     isUserFound = true;
                     break;
                 }
@@ -105,7 +106,27 @@ joinGame = (request,response) => {
                         doc.time.buffer = Date.now();
                         doc.time.timeRemain = doc.time.bufferLimit / 1000;
 
-                        //TODO - Turn Processing
+                        //Turn Processing
+                        for(let i = 0;i<teamList.length;i++) {
+                            
+                            //If team just drew, designate new drawer
+                            if (doc.teams[teamList[i]].isActive) {
+                                doc.teams[teamList[i]].drawIndex = (doc.teams[teamList[i]].drawIndex + 1) % doc.teams[teamList[i]].players.length
+                            }
+
+                            //Team no longer draws
+                            doc.teams[teamList[i]].isActive = false;
+                        }
+
+                        //Decide which team goes next
+                        let isNextTeamSelected = false;
+                        while (!isNextTeamSelected) {
+                            doc.turn = (doc.turn + 1) % teamList.length 
+                            if (doc.teams[teamList[doc.turn]].players.length > 0) {
+                                doc.teams[teamList[doc.turn]].isActive = true;
+                                isNextTeamSelected = true;
+                            }
+                        }
 
                         //TODO - Get New Word
                     }
