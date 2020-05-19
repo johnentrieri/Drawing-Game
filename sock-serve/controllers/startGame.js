@@ -1,6 +1,6 @@
 const Game = require('../db/models/gameSchema');
 
-joinTeam = (request,response) => {   
+startGame = (request,response) => {   
     const body = request.body;
 
     //Check for Empty Body
@@ -98,4 +98,4 @@ joinTeam = (request,response) => {
     });
 };
 
-module.exports = joinTeam;
+module.exports = startGame;

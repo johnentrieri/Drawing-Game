@@ -261,15 +261,15 @@ class GameManager extends Component {
     }
 
     pauseGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/pausegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -278,15 +278,15 @@ class GameManager extends Component {
     }
 
     resumeGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/resumegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
