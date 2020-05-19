@@ -179,15 +179,17 @@ class GameManager extends Component {
     }
 
     startGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/startgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
