@@ -239,15 +239,16 @@ class GameManager extends Component {
     }
 
     disbandGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/disbandgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -295,15 +296,16 @@ class GameManager extends Component {
     }
 
     leaveGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/leavegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });

@@ -9,6 +9,8 @@ const joinTeam = require('../controllers/joinTeam');
 const startGame = require('../controllers/startGame');
 const pauseGame = require('../controllers/pauseGame');
 const resumeGame = require('../controllers/resumeGame');
+const leaveGame = require('../controllers/leaveGame');
+const disbandGame = require('../controllers/disbandGame');
 
 //Router
 const router = express.Router()
@@ -21,5 +23,7 @@ router.post('/jointeam/', joinTeam);
 router.post('/startgame/', startGame);
 router.post('/pausegame/', pauseGame);
 router.post('/resumegame/', resumeGame);
+router.post('/leavegame', leaveGame);
+router.post('/disbandgame', disbandGame);
 
 module.exports = router
