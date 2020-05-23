@@ -11,7 +11,7 @@ const GameSchema = new Schema({
     prevWord: {type: String, default: ''}, //Previous Word to be guessed  
     turn: {type: Number, default: -1}, //Current Round
     time: {
-        drawLimit: {type: Number, default: 90000}, //Drawing Time Limit 
+        drawLimit: {type: Number, default: 10000}, //Drawing Time Limit 
         bufferLimit: {type: Number, default: 5000}, //Buffer Period Wait Time
         timeRemain: {type: Number, default: 0}, //Time Remaining
         active: {type: Number, default: 0}, //Active Timer (Start)

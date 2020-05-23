@@ -1,4 +1,17 @@
 const Game = require('../db/models/gameSchema');
+const fs = require('fs');
+const Agenda = require('Agenda');
+
+const wordFile = "C:\\Users\\johne\\Documents\\drawing-game\\sock-serve\\util\\nounlist.txt";
+
+const processGameData = require('../controllers/processGameData');
+
+const mongoConnectionString = 'mongodb://127.0.0.1/agenda';
+const agenda = new Agenda({db: {address: mongoConnectionString}});
+
+agenda.define('process-game-data', async (job) => {
+    processGameData(job.attrs.data.roomName);
+});
 
 startGame = (request,response) => {   
     const body = request.body;
@@ -80,20 +93,39 @@ startGame = (request,response) => {
             doc.time.timeRemain = doc.time.bufferLimit / 1000;
             doc.time.buffer = Date.now();
 
-            //Save Document to Database
-            doc.save( (err) => {
+            //Get New Word
+            fs.readFile(wordFile, "utf8", (err,data) => {
                 if (err) {
-                    return response.status(200).json({
+                       return response.status(200).json({
                         status: 'FAIL',
-                        message: err.message
+                        message: "Error Reading Word List"
                     })
                 } else {
-                    return response.status(200).json({
-                        status: 'SUCCESS',
-                        message: 'Started Game'
+                    const words = data.split('\n');
+                    const index = Math.floor(Math.random() * Math.floor(words.length))
+                    doc.word = words[index]
+
+                    //Save Document to Database
+                    doc.save( (err) => {
+                        if (err) {
+                            return response.status(200).json({
+                                status: 'FAIL',
+                                message: err.message
+                            })
+                        } else {   
+                            (async function() { // IIFE to give access to async/await
+                                await agenda.processEvery('1 second');
+                                await agenda.start();    
+                                await agenda.every('1 seconds', 'process-game-data', {roomName : body.room});  
+                            })();        
+                            return response.status(200).json({
+                                status: 'SUCCESS',
+                                message: 'Started Game'
+                            })                          
+                        }
                     })
                 }
-            })            
+            })                       
         }
     });
 };
