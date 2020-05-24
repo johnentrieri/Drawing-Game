@@ -2,9 +2,9 @@ const Game = require('../db/models/gameSchema');
 const fs = require('fs');
 const Agenda = require('Agenda');
 
-const wordFile = "C:\\Users\\johne\\Documents\\drawing-game\\sock-serve\\util\\nounlist.txt";
+const wordFile = ".\\util\\nounlist.txt";
 
-const processGameData = require('../controllers/processGameData');
+const processGameData = require('./processGameData');
 
 const mongoConnectionString = 'mongodb://127.0.0.1/agenda';
 const agenda = new Agenda({db: {address: mongoConnectionString}});

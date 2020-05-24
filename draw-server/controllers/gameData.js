@@ -1,7 +1,4 @@
 const Game = require('../db/models/gameSchema');
-const fs = require('fs');
-
-const wordFile = "C:\\Users\\johne\\Documents\\drawing-game\\sock-serve\\util\\nounlist.txt";
 
 joinGame = (request,response) => {   
     const body = request.body;
