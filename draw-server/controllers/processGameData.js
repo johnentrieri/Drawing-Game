@@ -19,7 +19,7 @@ const processGameData = (roomName,guess,guessingTeam) => {
             teamList.splice(0,1);
 
             //If a Correct Guess was submitted
-            if(guess !== undefined && guessingTeam !== undefined && guess === doc.word) {
+            if(guess && guessingTeam && guess.toLowerCase() === doc.word.toLowerCase()) {
 
                 //Set State to Buffer
                 doc.state = 'buffer';
@@ -60,7 +60,7 @@ const processGameData = (roomName,guess,guessingTeam) => {
                         const words = data.split('\n');
                         const index = Math.floor(Math.random() * Math.floor(words.length))
                         doc.prevWord = doc.word;
-                        doc.word = words[index]
+                        doc.word = words[index].replace("\r","");
 
                         //Save Document to Database
                         doc.save( (err) => { if (err) { console.log("[worker.js] could not upload document to database"); } })

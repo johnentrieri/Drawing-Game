@@ -103,7 +103,7 @@ startGame = (request,response) => {
                 } else {
                     const words = data.split('\n');
                     const index = Math.floor(Math.random() * Math.floor(words.length))
-                    doc.word = words[index]
+                    doc.word = words[index].replace("\r","");
 
                     //Save Document to Database
                     doc.save( (err) => {

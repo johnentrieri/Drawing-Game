@@ -6,34 +6,22 @@ import LoginWindow from '../Components/LoginWindow/LoginWindow';
 import LobbyWindow from '../Components/LobbyWindow/LobbyWindow';
 import GameWindow from '../Components/GameWindow/GameWindow';
 
-let socket = io.connect('http://localhost:4000');
-const API_URL = "http://localhost:4000/api";
+const serverURL = 'http://localhost:4000';
+
+let socket = io.connect(serverURL);
+const API_URL = serverURL + "/api";
 
 //Listen Drawing Event
-socket.on('draw', (team,points) => {
+socket.on('draw', (team,initPos,finalPos) => {
     let canvas = document.getElementById(team);
-    if(canvas && points.length > 0) {
+    if(canvas) {
         const ctx = canvas.getContext('2d');
-
-        if (points.length < 6) {
-            let b = points[0];
+        if(initPos && finalPos) {
             ctx.beginPath();
-            ctx.arc(b.x, b.y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-            ctx.closePath();
-            ctx.fill();
-            return
+            ctx.moveTo(initPos.x, initPos.y);
+            ctx.lineTo(finalPos.x, finalPos.y);
+            ctx.stroke();
         }
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        // draw a bunch of quadratics, using the average of two points as the control point
-        let i = 1;
-        for (i = 1; i < points.length - 2; i++) {
-            let c = (points[i].x + points[i + 1].x) / 2,
-                d = (points[i].y + points[i + 1].y) / 2;
-            ctx.quadraticCurveTo(points[i].x, points[i].y, c, d)
-        }
-        ctx.quadraticCurveTo(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-        ctx.stroke();
     }
 });
 
@@ -45,8 +33,6 @@ socket.on('clear', (team) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);      
     }
 });
-
-;
 
 class GameManager extends Component {
     state = {
@@ -200,9 +186,9 @@ class GameManager extends Component {
         })
     }
 
-    drawHandler = (team,points) => {
+    drawHandler = (team,initPos,finalPos) => {
         if (this.state.gameData.state === 'active') {
-            socket.emit('draw',team,points);        
+            socket.emit('draw',team,initPos,finalPos);        
         }
     }
 

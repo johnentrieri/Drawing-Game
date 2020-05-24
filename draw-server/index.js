@@ -28,8 +28,8 @@ const io = socket(server);
 io.on('connection', (socket) => {
     console.log('Made socket connection: ' + socket.id);
 
-    socket.on('draw', (team,points) => {
-        io.sockets.emit('draw',team,points);
+    socket.on('draw', (team,initPos,finalPos) => {
+        io.sockets.emit('draw',team,initPos,finalPos);
     });
 
     socket.on('clear', (team) => {
