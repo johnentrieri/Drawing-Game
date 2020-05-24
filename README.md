@@ -85,26 +85,24 @@ If any terminals indicate something went wrong, follow debugging steps within th
 
 ### Playing with Friends
 
-The applications are configured to run and communicate all within a single machine. To extend the game to be able to run on multiple machines within your local network, the front-end application must be modified to communicate with the machines hosting the back-end application as follows:
+The applications are configured to run and communicate all within a single machine. To extend the game to be able to run on multiple machines within your local network, the front-end application must be modified to communicate with the machine hosting the back-end application as follows:
 
 Identify the local IP address of the machine on the network that is running the back-end application (typically _192.168.X.X_)
 
-Modify the below lines in _drawing-game\draw-client\src\containers\GameManager.js_...
+Modify the below line in _draw-client\src\containers\GameManager.js_...
 
 ```javascript
-let socket = io.connect('http://localhost:4000');
-const API_URL = "http://localhost:4000/api";
+const serverURL = 'http://localhost:4000';
 ```
 
 to...
 
 ```javascript
-let socket = io.connect('http://192.168.X.X:4000');
-const API_URL = "http://192.168.X.X:4000/api"
+const serverURL = 'http://192.168.X.X:4000';
 ```
 
 Upon saving, the front-end application should automatically refresh, incorporating the new changes.
 
 To confirm the action was successful, a separate machine on the local network should be able to navigate to _http://192.168.X.X:3000_ and access the login page of the front-end application.
 
-This same process (with some extra work) can be followed using your External IP address to extend the game to players outside of your local network. Aside from changing the IP Addresses in the front-end application, your network must be configured to forward incoming and outgoing traffic on external ports 3000 (Client) and 4000 (Server), and 5000 (REST API) to the machine hosting the applications. Refer to your Router's Manual or Internet Service Provider (ISP) for guidance on how to forward ports.
+This same process (with some extra work) can be followed using your External IP address to extend the game to players outside of your local network. Aside from changing the IP Addresses in the front-end application, your network must be configured to forward incoming and outgoing traffic on external ports 3000 (Client) and 4000 (Server) to the machine hosting the applications. Refer to your Router's Manual or Internet Service Provider (ISP) for guidance on how to forward ports.
