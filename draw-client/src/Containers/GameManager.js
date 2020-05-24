@@ -7,7 +7,7 @@ import LobbyWindow from '../Components/LobbyWindow/LobbyWindow';
 import GameWindow from '../Components/GameWindow/GameWindow';
 
 let socket = io.connect('http://localhost:4000');
-const API_URL = "http://localhost:4000/api"
+const API_URL = "http://localhost:4000/api";
 
 //Listen Drawing Event
 socket.on('draw', (team,points) => {
