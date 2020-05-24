@@ -202,8 +202,8 @@ class GameManager extends Component {
 
     drawHandler = (team,points) => {
         if (this.state.gameData.state === 'active') {
-        socket.emit('draw',team,points);        
-    }
+            socket.emit('draw',team,points);        
+        }
     }
 
     clearViewingCanvas = (team) => {
@@ -236,6 +236,9 @@ class GameManager extends Component {
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
             this.setState({ responseMessage : response.data.message });
+            if (response.data.status === 'SUCCESS') {
+                document.querySelector('#guess_'+team).value = "";
+            }
         })
     }
 
