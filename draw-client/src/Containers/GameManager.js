@@ -6,8 +6,10 @@ import LoginWindow from '../Components/LoginWindow/LoginWindow';
 import LobbyWindow from '../Components/LobbyWindow/LobbyWindow';
 import GameWindow from '../Components/GameWindow/GameWindow';
 
-let socket = io.connect('http://localhost:4000');
-const API_URL = "http://localhost:5000";
+const serverURL = 'http://localhost:4000';
+
+let socket = io.connect(serverURL);
+const API_URL = serverURL + "/api";
 
 //Listen Drawing Event
 socket.on('draw', (team,initPos,finalPos) => {
@@ -55,16 +57,17 @@ class GameManager extends Component {
 
     getGameData = () => {
         if (this.state.room !== "") {
-            
-            let bodyFormData = new FormData();
-            bodyFormData.set('user', this.state.username);
-            bodyFormData.set('room', this.state.room);
+
+            let bodyFormData = {
+                'user' : this.state.username,
+                'room' : this.state.room
+            };
 
             axios({
                 method: 'post',
                 url: API_URL + '/gamedata/',
                 data: bodyFormData,
-                headers: {'Content-Type': 'multipart/form-data' }
+                headers: {'Content-Type': 'application/json' }
             })
             .then( (response) => {
                 if (response.data.status === "SUCCESS") {
@@ -91,16 +94,18 @@ class GameManager extends Component {
     }
 
     hostGameHandler = (user, room, code) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', user);
-        bodyFormData.set('room', room);
-        bodyFormData.set('code', code);
+
+        let bodyFormData = {
+            'user' : user,
+            'room' : room,
+            'code' : code
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/hostgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -114,16 +119,17 @@ class GameManager extends Component {
     }
 
     joinGameHandler = (user, room, code) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', user);
-        bodyFormData.set('room', room);
-        bodyFormData.set('code', code);
+        let bodyFormData = {
+            'user' : user,
+            'room' : room,
+            'code' : code
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/joingame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -137,16 +143,17 @@ class GameManager extends Component {
     }
 
     joinTeamHandler = (team) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
-        bodyFormData.set('team', team);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+            'team' : team
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/jointeam/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -158,15 +165,17 @@ class GameManager extends Component {
     }
 
     startGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/startgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -197,34 +206,39 @@ class GameManager extends Component {
     }
 
     guessHandler = (team,guess) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
-        bodyFormData.set('team', team);
-        bodyFormData.set('guess', guess);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+            'team' : team,
+            'word' : guess
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/guess/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
             this.setState({ responseMessage : response.data.message });
+            if (response.data.status === 'SUCCESS') {
+                document.querySelector('#guess_'+team).value = "";
+            }
         })
     }
 
     disbandGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/disbandgame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -238,15 +252,15 @@ class GameManager extends Component {
     }
 
     pauseGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/pausegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -255,15 +269,15 @@ class GameManager extends Component {
     }
 
     resumeGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'room' : this.state.room,
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/resumegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
@@ -272,15 +286,16 @@ class GameManager extends Component {
     }
 
     leaveGameHandler = () => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/leavegame/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });
