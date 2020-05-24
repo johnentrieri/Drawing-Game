@@ -11,6 +11,7 @@ const pauseGame = require('../controllers/pauseGame');
 const resumeGame = require('../controllers/resumeGame');
 const leaveGame = require('../controllers/leaveGame');
 const disbandGame = require('../controllers/disbandGame');
+const guess = require('../controllers/guess');
 
 //Router
 const router = express.Router()
@@ -25,5 +26,6 @@ router.post('/pausegame/', pauseGame);
 router.post('/resumegame/', resumeGame);
 router.post('/leavegame', leaveGame);
 router.post('/disbandgame', disbandGame);
+router.post('/guess', guess);
 
 module.exports = router

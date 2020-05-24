@@ -220,17 +220,18 @@ class GameManager extends Component {
     }
 
     guessHandler = (team,guess) => {
-        let bodyFormData = new FormData();
-        bodyFormData.set('user', this.state.username);
-        bodyFormData.set('room', this.state.room);
-        bodyFormData.set('team', team);
-        bodyFormData.set('guess', guess);
+        let bodyFormData = {
+            'user' : this.state.username,
+            'room' : this.state.room,
+            'team' : team,
+            'word' : guess
+        };
 
         axios({
             method: 'post',
             url: API_URL + '/guess/',
             data: bodyFormData,
-            headers: {'Content-Type': 'multipart/form-data' }
+            headers: {'Content-Type': 'application/json' }
         })
         .then( (response) => {
             this.setState({ responseStatus : response.data.status });

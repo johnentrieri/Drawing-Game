@@ -4,8 +4,6 @@ import ViewingCanvas from './ViewingCanvas/ViewingCanvas';
 
 const teamGameArea = (props) => {
 
-    let drawer = null;
-    let active = null;
     let canvas = null;
     let points = null;
     let timer = null;
@@ -19,9 +17,6 @@ const teamGameArea = (props) => {
         } else {
             timer = <p>Next Round in: {Math.round(parseInt(props.game.time.timeRemain))}</p>
         }
-
-        drawer = props.game.teams[props.team].players[props.game.teams[props.team].drawIndex];
-        active = props.game.teams[props.team].isActive ? "Yes" : "No";
 
         canvas = <ViewingCanvas id={props.team} user={props.user} game={props.game} guessClicked={props.guessClicked} />
     }
